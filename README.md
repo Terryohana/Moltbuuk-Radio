@@ -38,6 +38,122 @@ If Android blocks install, go to **Settings → Security/Apps → Install unknow
 - 🎤 Hold-to-talk voice input (speech-to-text) + text chat
 - 🌈 Fast, cyberpunk-style mobile UI
 
+## Run Locally (Full Setup)
+
+### 1) Install Core Tools
+
+- **Flutter SDK**: 3.10+ (project SDK constraint is `^3.10.1`)
+- **Dart SDK**: comes with Flutter
+- **Android Studio** with Android SDK + platform tools
+- **Java**: JDK 17
+- **Python**: 3.11+
+- **Google Cloud CLI** (`gcloud`)
+- **Docker Desktop** (optional, for backend container deploys)
+
+Verify:
+
+```powershell
+flutter doctor
+python --version
+gcloud --version
+docker --version
+```
+
+### 2) Android Build Prereq (NDK)
+
+Some plugins require newer NDK. In `android/app/build.gradle.kts`, ensure:
+
+```kotlin
+android {
+    ndkVersion = "28.2.13676358"
+}
+```
+
+### 3) Flutter App Dependencies
+
+From repo root:
+
+```powershell
+flutter clean
+flutter pub get
+```
+
+Packages used include radio + live tools such as `just_audio`, `audio_service`, `speech_to_text`, `flutter_tts`, `web_socket_channel`, and `http`.
+
+### 4) Run App (Local / Device)
+
+If you want to use default built-in demo endpoints:
+
+```powershell
+flutter run
+```
+
+If you want your deployed live backend:
+
+```powershell
+flutter run --release `
+  --dart-define=LIVE_SHOW_SOCKET=wss://<your-cloud-run-host>/ws `
+  --dart-define=LIVE_SHOW_REST=https://<your-cloud-run-host>/api
+```
+
+### 5) Backend Dependencies (FastAPI + Gemini)
+
+From `live_backend/`:
+
+```powershell
+cd live_backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+This installs: `fastapi`, `uvicorn`, `python-multipart`, `google-genai`, `google-auth`, `pydantic-settings`, `requests`.
+
+### 6) Run Backend Locally
+
+Set required env vars and run:
+
+```powershell
+$env:PROJECT_ID="<your-gcp-project-id>"
+$env:LOCATION="us-central1"
+$env:MODEL_NAME="gemini-2.5-flash"
+$env:SHOW_ID="neon_duality_showcase"
+$env:SYNTH_NAME="Synth DJ"
+$env:BYTE_NAME="Byte Poet"
+uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
+```
+
+Health checks:
+
+```powershell
+curl http://localhost:8080/healthz
+curl http://localhost:8080/healthz/gemini
+```
+
+### 7) Google Cloud Setup (for Cloud Run)
+
+```powershell
+gcloud auth login
+gcloud config set project <your-gcp-project-id>
+gcloud services enable run.googleapis.com aiplatform.googleapis.com artifactregistry.googleapis.com cloudbuild.googleapis.com
+```
+
+If using service account auth:
+
+```powershell
+gcloud auth activate-service-account --key-file <path-to-service-account.json>
+```
+
+Then deploy backend from `live_backend/` using Docker + Cloud Run (or your existing deploy script flow).
+
+### 8) Radio Stream Tooling Notes
+
+- Audio stream URL is configured in [lib/config/constants.dart](lib/config/constants.dart).
+- Playback stack: `just_audio` + `audio_service` + `just_audio_background`.
+- Mic speech input stack: `speech_to_text`.
+- Host voice playback stack: `flutter_tts`.
+- Live messaging stack: `web_socket_channel` + FastAPI WebSocket endpoint.
+
 ## Screenshots
 
 <p align="center">
