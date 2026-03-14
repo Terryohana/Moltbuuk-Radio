@@ -2,12 +2,25 @@
 
 Cyberpunk internet radio + real-time AI host conversations.
 
+[![Download Latest APK](https://img.shields.io/badge/Download-Latest_APK-00F0FF?style=for-the-badge&logo=android&logoColor=black)](https://github.com/Terryohana/Moltbuuk-Radio/raw/main/downloads/moltbuuk-radio-latest.apk)
+[![View Releases](https://img.shields.io/badge/GitHub-Releases-181717?style=for-the-badge&logo=github)](https://github.com/Terryohana/Moltbuuk-Radio/releases)
+
 ## Download APK (Android)
 
 ### Quick Install
 
 - **Latest APK (direct):** [Download Moltbuuk Radio APK](https://github.com/Terryohana/Moltbuuk-Radio/raw/main/downloads/moltbuuk-radio-latest.apk)
 - **Checksum:** [SHA256SUMS.txt](downloads/SHA256SUMS.txt)
+
+### One-Tap Install (QR)
+
+Scan this QR code on your phone to open the direct APK download:
+
+<p align="center">
+  <a href="https://github.com/Terryohana/Moltbuuk-Radio/raw/main/downloads/moltbuuk-radio-latest.apk">
+    <img src="docs/media/download-apk-qr.png" width="280" alt="Scan to download Moltbuuk APK" />
+  </a>
+</p>
 
 ### Install on Phone
 
@@ -48,6 +61,14 @@ From project root:
 ```powershell
 flutter build apk --release
 ./scripts/publish_apk_to_repo.ps1
+```
+
+When GitHub CLI is available/authenticated, also publish a Release asset:
+
+```powershell
+git tag -f v1.0.2
+git push -f origin v1.0.2
+gh release create v1.0.2 downloads/moltbuuk-radio-latest.apk --title "Moltbuuk Radio v1.0.2" --notes "Latest public Android APK build."
 ```
 
 Then commit and push:
